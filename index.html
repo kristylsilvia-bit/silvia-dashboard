@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Silvia Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #0d0f14; color: #e8eaf0; min-height: 100vh; }
+
+  /* ── Topbar ── */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .topbar-left { display: flex; align-items: baseline; gap: 12px; }
+  .home-name { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; color: #f0f2f8; }
+  .clock { font-family: 'DM Mono', monospace; font-size: 14px; color: #6b7280; }
+  .weather-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 7px 16px; font-size: 13px; color: #9ca3af; }
+  .weather-temp { font-size: 17px; font-weight: 500; color: #f0f2f8; font-family: 'DM Mono', monospace; }
+
+  /* ── Layout ── */
+  .content { padding: 22px 24px; display: flex; flex-direction: column; gap: 24px; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 1.4px; text-transform: uppercase; color: #4b5563; margin-bottom: 12px; }
+
+  /* ── Stats ── */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 20px 16px; text-align: center; }
+  .stat-val { font-size: 32px; font-weight: 600; font-family: 'DM Mono', monospace; color: #f0f2f8; line-height: 1; }
+  .stat-val.amber { color: #fab73c; }
+  .stat-val.green { color: #4ade80; }
+  .stat-label { font-size: 11px; color: #4b5563; margin-top: 8px; letter-spacing: 0.4px; }
+
+  /* ── Rooms ── */
+  .rooms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .room-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px 16px; transition: all 0.15s; position: relative; }
+  .room-card.active { background: rgba(250,183,60,0.1); border-color: rgba(250,183,60,0.3); }
+  .room-dot { width: 7px; height: 7px; border-radius: 50%; background: #fab73c; position: absolute; top: 13px; right: 13px; box-shadow: 0 0 0 3px rgba(250,183,60,0.15); }
+  .room-icon { font-size: 24px; margin-bottom: 12px; display: block; }
+  .room-name { font-size: 14px; font-weight: 500; color: #d1d5db; }
+  .room-count { font-size: 11px; color: #6b7280; margin-top: 3px; }
+
+  /* ── Devices ── */
+  .devices-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .device-tile { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px 16px; cursor: pointer; transition: background 0.1s, border-color 0.1s; display: flex; flex-direction: column; gap: 14px; user-select: none; }
+  .device-tile:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.12); }
+  .device-tile.on { background: rgba(250,183,60,0.08); border-color: rgba(250,183,60,0.25); }
+  .device-top { display: flex; align-items: center; justify-content: space-between; }
+  .device-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 19px; }
+  .device-tile.on .device-icon-wrap { background: rgba(250,183,60,0.15); }
+  .toggle { width: 38px; height: 22px; border-radius: 11px; background: #1f2937; border: 1px solid rgba(255,255,255,0.08); position: relative; transition: background 0.15s; flex-shrink: 0; }
+  .toggle.on { background: #fab73c; border-color: #fab73c; }
+  .toggle-knob { width: 16px; height: 16px; border-radius: 50%; background: #374151; position: absolute; top: 2px; left: 3px; transition: transform 0.15s, background 0.15s; }
+  .toggle.on .toggle-knob { transform: translateX(16px); background: #fff; }
+  .device-name { font-size: 13px; font-weight: 500; color: #d1d5db; line-height: 1.3; }
+  .device-area { font-size: 11px; color: #4b5563; margin-top: 2px; }
+
+  /* ── Media basic card ── */
+  .media-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px; display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+  .media-icon { width: 50px; height: 50px; border-radius: 12px; background: rgba(139,92,246,0.12); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .media-info { flex: 1; }
+  .media-name { font-size: 15px; font-weight: 500; color: #f0f2f8; }
+  .media-sub { font-size: 12px; color: #6b7280; margin-top: 3px; }
+  .media-song { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+  .media-badge { font-size: 11px; font-weight: 500; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.2); border-radius: 7px; padding: 4px 10px; white-space: nowrap; }
+  .media-badge.playing { background: rgba(250,183,60,0.15); color: #fab73c; border-color: rgba(250,183,60,0.2); }
+
+  /* ── Apple TV Remote ── */
+  .atv-container { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; padding: 22px; display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  .atv-left { flex: 1; min-width: 260px; }
+  .atv-right { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* Now playing strip */
+  .atv-nowplaying { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.15); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .atv-art { width: 44px; height: 44px; border-radius: 8px; background: rgba(139,92,246,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .atv-nowplaying-info { flex: 1; min-width: 0; }
+  .atv-title { font-size: 13px; font-weight: 500; color: #f0f2f8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .atv-artist { font-size: 11px; color: #6b7280; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .atv-state-badge { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 5px; background: rgba(250,183,60,0.15); color: #fab73c; border: 1px solid rgba(250,183,60,0.2); white-space: nowrap; }
+
+  /* D-pad */
+  .dpad-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 16px; }
+  .dpad-row { display: flex; gap: 4px; align-items: center; }
+  .dpad-btn { width: 54px; height: 54px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #d1d5db; transition: background 0.1s, transform 0.08s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .dpad-btn:hover { background: rgba(255,255,255,0.12); }
+  .dpad-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.94); }
+  .dpad-center { width: 60px; height: 60px; border-radius: 50%; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); font-size: 13px; font-weight: 500; color: #c4b5fd; }
+  .dpad-center:hover { background: rgba(139,92,246,0.25); }
+  .dpad-spacer { width: 54px; height: 54px; }
+
+  /* Playback row */
+  .pb-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  .pb-btn { flex: 1; height: 46px; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.10); cursor: pointer; display: flex; align-items: center; justify-content: center; color: #d1d5db; transition: background 0.1s, transform 0.08s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .pb-btn:hover { background: rgba(255,255,255,0.12); }
+  .pb-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.96); }
+  .pb-btn.playpause { background: rgba(250,183,60,0.12); border-color: rgba(250,183,60,0.25); color: #fab73c; }
+  .pb-btn.playpause:hover { background: rgba(250,183,60,0.2); }
+
+  /* Top buttons row (Menu / Home / Siri) */
+  .top-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+  .top-btn { flex: 1; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); cursor: pointer; font-size: 12px; font-weight: 500; color: #9ca3af; transition: background 0.1s, transform 0.08s; user-select: none; -webkit-tap-highlight-color: transparent; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .top-btn:hover { background: rgba(255,255,255,0.10); color: #d1d5db; }
+  .top-btn:active { transform: scale(0.96); }
+
+  /* Volume */
+  .vol-row { display: flex; align-items: center; gap: 10px; }
+  .vol-label { font-size: 11px; color: #4b5563; width: 32px; text-align: center; }
+  .vol-btn { flex: 1; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; color: #9ca3af; transition: background 0.1s, transform 0.08s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .vol-btn:hover { background: rgba(255,255,255,0.10); }
+  .vol-btn:active { transform: scale(0.96); }
+  .mute-btn { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; color: #9ca3af; transition: background 0.1s; user-select: none; }
+  .mute-btn:hover { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.2); }
+
+  /* App launcher */
+  .apps-label { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #4b5563; margin-bottom: 10px; }
+  .apps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .app-btn { border-radius: 12px; padding: 10px 6px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: background 0.1s, transform 0.08s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .app-btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.15); }
+  .app-btn:active { transform: scale(0.94); }
+  .app-btn.active-app { background: rgba(250,183,60,0.10); border-color: rgba(250,183,60,0.3); }
+  .app-icon { font-size: 22px; }
+  .app-name { font-size: 9px; color: #6b7280; text-align: center; line-height: 1.2; }
+  .app-btn.active-app .app-name { color: #fab73c; }
+
+  /* Sun */
+  .sun-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sun-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 16px 18px; display: flex; align-items: center; gap: 12px; }
+  .sun-label { font-size: 11px; color: #6b7280; }
+  .sun-time { font-size: 18px; font-weight: 500; font-family: 'DM Mono', monospace; color: #f0f2f8; margin-top: 2px; }
+
+  /* Error */
+  .error-banner { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #fca5a5; display: none; }
+
+  /* SVG icons inline */
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="home-name">Silvia Home</span>
+    <span class="clock" id="clock">—</span>
+  </div>
+  <div class="weather-pill">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+    <span>Valatie, NY</span>
+    <span class="weather-temp" id="weather-temp">—</span>
+  </div>
+</div>
+
+<div class="content">
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val amber" id="stat-on">—</div><div class="stat-label">devices on</div></div>
+    <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-label">total devices</div></div>
+    <div class="stat-card"><div class="stat-val green">OK</div><div class="stat-label">system status</div></div>
+  </div>
+
+  <!-- Rooms -->
+  <div><div class="section-label">Rooms</div><div class="rooms-grid" id="rooms-grid"></div></div>
+
+  <!-- Devices -->
+  <div><div class="section-label">Devices</div><div class="devices-grid" id="devices-grid"></div></div>
+
+  <!-- Media -->
+  <div>
+    <div class="section-label">Media</div>
+    <div id="other-media-section"></div>
+
+    <!-- Apple TV Remote -->
+    <div class="atv-container" id="atv-remote">
+      <div class="atv-left">
+        <!-- Now playing -->
+        <div class="atv-nowplaying" id="atv-nowplaying">
+          <div class="atv-art" id="atv-art">📺</div>
+          <div class="atv-nowplaying-info">
+            <div class="atv-title" id="atv-title">James' Apple TV</div>
+            <div class="atv-artist" id="atv-artist">Apple TV 4K · James' Room</div>
+          </div>
+          <span class="atv-state-badge" id="atv-badge">Standby</span>
+        </div>
+
+        <!-- Menu / Home / TV -->
+        <div class="top-btns">
+          <button class="top-btn" onclick="atvCmd('menu')" title="Menu">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Menu
+          </button>
+          <button class="top-btn" onclick="atvHome()" title="Home (hold for TV)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home
+          </button>
+          <button class="top-btn" onclick="atvCmd('screensaver')" title="Screensaver / Sleep">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+            Sleep
+          </button>
+        </div>
+
+        <!-- D-pad -->
+        <div class="dpad-wrap">
+          <div class="dpad-row">
+            <div class="dpad-spacer"></div>
+            <button class="dpad-btn" onclick="atvCmd('up')">▲</button>
+            <div class="dpad-spacer"></div>
+          </div>
+          <div class="dpad-row">
+            <button class="dpad-btn" onclick="atvCmd('left')">◀</button>
+            <button class="dpad-btn dpad-center" onclick="atvCmd('select')">OK</button>
+            <button class="dpad-btn" onclick="atvCmd('right')">▶</button>
+          </div>
+          <div class="dpad-row">
+            <div class="dpad-spacer"></div>
+            <button class="dpad-btn" onclick="atvCmd('down')">▼</button>
+            <div class="dpad-spacer"></div>
+          </div>
+        </div>
+
+        <!-- Playback controls -->
+        <div class="pb-row">
+          <button class="pb-btn" onclick="atvPrev()" title="Previous">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button class="pb-btn" onclick="atvSkipBack()" title="Skip back 10s">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.56"/><text x="9" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">10</text></svg>
+          </button>
+          <button class="pb-btn playpause" onclick="atvPlayPause()" id="atv-playpause" title="Play / Pause">
+            <svg id="atv-pp-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="pb-btn" onclick="atvSkipFwd()" title="Skip forward 10s">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15A9 9 0 1 1 20 11.56"/><text x="9" y="16" font-size="6" fill="currentColor" stroke="none" font-family="sans-serif">10</text></svg>
+          </button>
+          <button class="pb-btn" onclick="atvNext()" title="Next">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6z"/></svg>
+          </button>
+        </div>
+
+        <!-- Volume -->
+        <div class="vol-row">
+          <button class="mute-btn" onclick="atvMute()" title="Mute">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+          </button>
+          <button class="vol-btn" onclick="atvVolDown()" title="Volume Down">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="15" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="vol-label" style="font-family:'DM Mono',monospace;font-size:12px;color:#6b7280;" id="atv-vol">—</span>
+          <button class="vol-btn" onclick="atvVolUp()" title="Volume Up">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="15" y1="12" x2="19" y2="12"/><line x1="17" y1="10" x2="17" y2="14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- App launcher -->
+      <div class="atv-right">
+        <div>
+          <div class="apps-label">Launch App</div>
+          <div class="apps-grid" id="apps-grid"></div>
+        </div>
+        <div id="source-select-wrap" style="display:none;">
+          <div class="apps-label" style="margin-top:8px;">Source</div>
+          <select id="source-select" style="width:100%;background:#1a1d27;border:1px solid rgba(255,255,255,0.1);color:#d1d5db;padding:8px 10px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;" onchange="atvSelectSource(this.value)">
+            <option value="">Choose source…</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sun -->
+  <div>
+    <div class="section-label">Sun</div>
+    <div class="sun-row">
+      <div class="sun-item"><span style="font-size:22px">🌅</span><div><div class="sun-label">Sunrise</div><div class="sun-time" id="sunrise-time">—</div></div></div>
+      <div class="sun-item"><span style="font-size:22px">🌇</span><div><div class="sun-label">Sunset</div><div class="sun-time" id="sunset-time">—</div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HA = 'http://192.168.0.186:8123';
+const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0MjM5NDJiZDIxY2Y0MmFmODc2NGMyZDQ0YmQzNTQzMCIsImlhdCI6MTc4MDUxMzQ0NCwiZXhwIjoyMDk1ODczNDQ0fQ.4F324qxpAkGENzLnt2Qi_E4r2qmVOfcLO_QJeviiEk0';
+const HEADERS = { Authorization: 'Bearer ' + TOKEN, 'Content-Type': 'application/json' };
+
+const ATV_PLAYER = 'media_player.james_apple_tv';
+const ATV_REMOTE = 'remote.james_apple_tv';
+
+// ── App definitions ──────────────────────────────────────────────────────────
+const APPS = [
+  { name: 'TV+',       icon: '🍎', source: 'Apple TV' },
+  { name: 'Netflix',   icon: '🎬', source: 'Netflix' },
+  { name: 'YouTube',   icon: '▶️',  source: 'YouTube' },
+  { name: 'Disney+',   icon: '✨', source: 'Disney+' },
+  { name: 'Hulu',      icon: '📺', source: 'Hulu' },
+  { name: 'Spotify',   icon: '🎵', source: 'Spotify' },
+  { name: 'Music',     icon: '🎶', source: 'Music' },
+  { name: 'Max',       icon: '🎭', source: 'Max' },
+  { name: 'Prime',     icon: '📦', source: 'Prime Video' },
+  { name: 'Arcade',    icon: '🕹️', source: 'Apple Arcade' },
+  { name: 'Podcasts',  icon: '🎙️', source: 'Podcasts' },
+  { name: 'Photos',    icon: '🖼️', source: 'Photos' },
+];
+
+const DIAGNOSTIC_PATTERNS = [
+  /auto.?off/i, /auto.?update/i, /\bled\b/i, /overload/i,
+  /overheat/i, /signal/i, /cloud/i, /reboot/i, /rssi/i,
+  /firmware/i, /power.?protect/i, /turn.?off.?in/i,
+  /consumption/i, /current/i, /voltage/i, /today/i, /month/i,
+  /hidden/i, /diagnostic/i
+];
+
+function isDiagnostic(s) {
+  if (s.attributes.entity_category) return true;
+  const name = s.attributes.friendly_name || '';
+  return DIAGNOSTIC_PATTERNS.some(p => p.test(name));
+}
+
+const ICON_MAP = [
+  [/fan/i, '💨'],
+  [/light|lamp/i, '💡'],
+  [/bath/i, '🛁'],
+  [/tv|television|apple tv/i, '📺'],
+  [/plug|outlet|socket/i, '🔌'],
+];
+function getIcon(name) {
+  for (const [re, icon] of ICON_MAP) if (re.test(name)) return icon;
+  return '🔌';
+}
+
+const AREA_ICON_MAP = {
+  'living room': '🛋️', 'kitchen': '🍳', 'bedroom': '🛏️',
+  'master bedroom': '🛏️', 'hallway bathroom': '🛁', 'hallway': '🚶',
+  "james'": '🎮', 'james': '🎮', 'family room': '🛋️',
+  'office': '💻', 'garage': '🚗', 'backyard': '🌿',
+};
+function getAreaIcon(area) {
+  return AREA_ICON_MAP[area.toLowerCase()] || '🏠';
+}
+
+function inferArea(s) {
+  const n = (s.attributes.friendly_name || '').toLowerCase();
+  const id = s.entity_id.toLowerCase();
+  const t = n + ' ' + id;
+  if (/hallway.bath|bath.*hall|unnamed_s515/.test(t)) return 'Hallway Bathroom';
+  if (/hallway/.test(t)) return 'Hallway';
+  if (/master.bed|momm|madre|padre|smart.plug/.test(t)) return 'Master Bedroom';
+  if (/james|unnamed_kp/.test(t)) return "James'";
+  if (/family.room/.test(t)) return 'Family Room';
+  if (/kitchen/.test(t)) return 'Kitchen';
+  if (/living/.test(t)) return 'Living Room';
+  if (/bedroom/.test(t)) return 'Bedroom';
+  return 'Other';
+}
+
+let allStates = {};
+let devices = [];
+let mediaPlayers = [];
+let atvState = null;
+
+// ── Fetch ────────────────────────────────────────────────────────────────────
+async function fetchStates() {
+  try {
+    const r = await fetch(HA + '/api/states', { headers: HEADERS });
+    if (!r.ok) throw new Error(r.status);
+    const all = await r.json();
+
+    allStates = {};
+    devices = [];
+    mediaPlayers = [];
+
+    all.forEach(s => {
+      allStates[s.entity_id] = s;
+      const domain = s.entity_id.split('.')[0];
+
+      if ((domain === 'switch' || domain === 'light') &&
+          !['unavailable', 'unknown'].includes(s.state) &&
+          !isDiagnostic(s)) {
+        devices.push(s);
+      }
+
+      if (domain === 'media_player' && s.entity_id !== ATV_PLAYER &&
+          !['unavailable', 'unknown'].includes(s.state)) {
+        mediaPlayers.push(s);
+      }
+
+      if (s.entity_id === ATV_PLAYER) atvState = s;
+      if (s.entity_id === 'weather.forecast_home') updateWeather(s);
+      if (s.entity_id === 'sun.sun') updateSun(s);
+    });
+
+    renderAll();
+    renderATV();
+    document.getElementById('error-banner').style.display = 'none';
+  } catch(e) {
+    document.getElementById('error-banner').style.display = 'block';
+    document.getElementById('error-banner').textContent = 'Cannot reach Home Assistant';
+  }
+}
+
+// ── Switch / Light toggle ────────────────────────────────────────────────────
+function toggle(entityId, domain) {
+  if (allStates[entityId]) allStates[entityId].state = allStates[entityId].state === 'on' ? 'off' : 'on';
+  renderAll();
+  fetch(`${HA}/api/services/${domain}/toggle`, {
+    method: 'POST', headers: HEADERS,
+    body: JSON.stringify({ entity_id: entityId })
+  }).catch(() => fetchStates());
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  const onCount = devices.filter(d => d.state === 'on').length;
+  document.getElementById('stat-on').textContent = onCount;
+  document.getElementById('stat-total').textContent = devices.length;
+
+  const areaMap = {};
+  devices.forEach(d => {
+    const area = inferArea(d);
+    if (!areaMap[area]) areaMap[area] = [];
+    areaMap[area].push(d);
+  });
+
+  document.getElementById('rooms-grid').innerHTML = Object.entries(areaMap).map(([area, devs]) => {
+    const active = devs.filter(d => d.state === 'on').length;
+    return `<div class="room-card ${active ? 'active' : ''}">
+      ${active ? '<div class="room-dot"></div>' : ''}
+      <span class="room-icon">${getAreaIcon(area)}</span>
+      <div class="room-name">${area}</div>
+      <div class="room-count">${active} active</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('devices-grid').innerHTML = devices.map(d => {
+    const on = d.state === 'on';
+    const name = d.attributes.friendly_name || d.entity_id;
+    const domain = d.entity_id.split('.')[0];
+    const area = inferArea(d);
+    return `<div class="device-tile ${on ? 'on' : ''}" onclick="toggle('${d.entity_id}','${domain}')">
+      <div class="device-top">
+        <div class="device-icon-wrap">${getIcon(name)}</div>
+        <div class="toggle ${on ? 'on' : ''}"><div class="toggle-knob"></div></div>
+      </div>
+      <div><div class="device-name">${name}</div><div class="device-area">${area}</div></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('other-media-section').innerHTML = mediaPlayers.map(s => {
+    const name = s.attributes.friendly_name || s.entity_id;
+    let badge = 'Standby', badgeClass = 'media-badge', song = '';
+    if (s.state === 'playing') {
+      badge = 'Playing'; badgeClass = 'media-badge playing';
+      const t = s.attributes.media_title || '', a = s.attributes.media_artist || '';
+      song = a ? `${t} — ${a}` : t;
+    } else if (s.state === 'paused') {
+      badge = 'Paused'; badgeClass = 'media-badge playing';
+      song = s.attributes.media_title || '';
+    }
+    return `<div class="media-card">
+      <div class="media-icon">📺</div>
+      <div class="media-info">
+        <div class="media-name">${name}</div>
+        <div class="media-sub">Media Player</div>
+        ${song ? `<div class="media-song">${song}</div>` : ''}
+      </div>
+      <span class="${badgeClass}">${badge}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Apple TV render ──────────────────────────────────────────────────────────
+function renderATV() {
+  if (!atvState) return;
+  const s = atvState;
+  const playing = s.state === 'playing';
+  const paused = s.state === 'paused';
+
+  const title = s.attributes.media_title || (playing || paused ? 'Now Playing' : 'Apple TV');
+  const artist = s.attributes.media_artist || s.attributes.media_series_title || 'Apple TV 4K · James\' Room';
+  const appName = s.attributes.app_name || '';
+
+  document.getElementById('atv-title').textContent = appName ? `${appName}${title !== 'Apple TV' ? ' – ' + title : ''}` : title;
+  document.getElementById('atv-artist').textContent = artist;
+
+  const badge = document.getElementById('atv-badge');
+  badge.textContent = s.state.charAt(0).toUpperCase() + s.state.slice(1);
+  badge.style.background = playing ? 'rgba(74,222,128,0.15)' : paused ? 'rgba(250,183,60,0.15)' : 'rgba(107,114,128,0.15)';
+  badge.style.color = playing ? '#4ade80' : paused ? '#fab73c' : '#9ca3af';
+  badge.style.borderColor = playing ? 'rgba(74,222,128,0.25)' : paused ? 'rgba(250,183,60,0.25)' : 'rgba(107,114,128,0.2)';
+
+  // art emoji based on app
+  const artEl = document.getElementById('atv-art');
+  if (/music|spotify|podcast/i.test(appName)) artEl.textContent = '🎵';
+  else if (/netflix/i.test(appName)) artEl.textContent = '🎬';
+  else if (/youtube/i.test(appName)) artEl.textContent = '▶️';
+  else if (/disney/i.test(appName)) artEl.textContent = '✨';
+  else artEl.textContent = '📺';
+
+  // play/pause icon
+  document.getElementById('atv-pp-icon').innerHTML = playing
+    ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>'
+    : '<path d="M8 5v14l11-7z"/>';
+
+  // volume
+  const vol = s.attributes.volume_level;
+  document.getElementById('atv-vol').textContent = vol != null ? Math.round(vol * 100) + '%' : '—';
+
+  // current app highlight
+  const currentSource = s.attributes.app_name || '';
+  document.getElementById('apps-grid').innerHTML = APPS.map(app => {
+    const active = currentSource.toLowerCase().includes(app.name.toLowerCase()) ||
+                   app.source.toLowerCase().includes(currentSource.toLowerCase());
+    return `<button class="app-btn ${active ? 'active-app' : ''}" onclick="atvLaunchApp('${escHtml(app.source)}')" title="${escHtml(app.name)}">
+      <span class="app-icon">${app.icon}</span>
+      <span class="app-name">${app.name}</span>
+    </button>`;
+  }).join('');
+
+  // source select (dynamic sources from HA)
+  const sources = s.attributes.source_list || [];
+  if (sources.length) {
+    document.getElementById('source-select-wrap').style.display = 'block';
+    const sel = document.getElementById('source-select');
+    const cur = s.attributes.source || '';
+    sel.innerHTML = '<option value="">Choose source…</option>' +
+      sources.map(src => `<option value="${escHtml(src)}" ${src === cur ? 'selected' : ''}>${escHtml(src)}</option>`).join('');
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── ATV helpers ──────────────────────────────────────────────────────────────
+function haService(domain, service, data) {
+  return fetch(`${HA}/api/services/${domain}/${service}`, {
+    method: 'POST', headers: HEADERS, body: JSON.stringify(data)
+  });
+}
+
+function atvCmd(command) {
+  haService('remote', 'send_command', { entity_id: ATV_REMOTE, command });
+}
+
+function atvHome() {
+  haService('remote', 'send_command', { entity_id: ATV_REMOTE, command: 'home' });
+}
+
+function atvPlayPause() {
+  haService('media_player', 'media_play_pause', { entity_id: ATV_PLAYER });
+  // optimistic icon flip
+  if (atvState) {
+    atvState.state = atvState.state === 'playing' ? 'paused' : 'playing';
+    renderATV();
+  }
+}
+
+function atvNext() {
+  haService('media_player', 'media_next_track', { entity_id: ATV_PLAYER });
+}
+
+function atvPrev() {
+  haService('media_player', 'media_previous_track', { entity_id: ATV_PLAYER });
+}
+
+function atvSkipFwd() {
+  haService('remote', 'send_command', { entity_id: ATV_REMOTE, command: 'skip_forward' });
+}
+
+function atvSkipBack() {
+  haService('remote', 'send_command', { entity_id: ATV_REMOTE, command: 'skip_backward' });
+}
+
+function atvVolUp() {
+  haService('media_player', 'volume_up', { entity_id: ATV_PLAYER });
+  if (atvState && atvState.attributes.volume_level != null) {
+    atvState.attributes.volume_level = Math.min(1, atvState.attributes.volume_level + 0.06);
+    renderATV();
+  }
+}
+
+function atvVolDown() {
+  haService('media_player', 'volume_down', { entity_id: ATV_PLAYER });
+  if (atvState && atvState.attributes.volume_level != null) {
+    atvState.attributes.volume_level = Math.max(0, atvState.attributes.volume_level - 0.06);
+    renderATV();
+  }
+}
+
+function atvMute() {
+  const muted = atvState ? atvState.attributes.is_volume_muted : false;
+  haService('media_player', 'volume_mute', { entity_id: ATV_PLAYER, is_volume_muted: !muted });
+}
+
+function atvLaunchApp(source) {
+  haService('media_player', 'select_source', { entity_id: ATV_PLAYER, source });
+}
+
+function atvSelectSource(source) {
+  if (source) haService('media_player', 'select_source', { entity_id: ATV_PLAYER, source });
+}
+
+// ── Weather / Sun ─────────────────────────────────────────────────────────────
+function updateWeather(s) {
+  document.getElementById('weather-temp').textContent =
+    Math.round(s.attributes.temperature) + (s.attributes.temperature_unit || '°F');
+}
+
+function updateSun(s) {
+  document.getElementById('sunrise-time').textContent = fmtTime(new Date(s.attributes.next_rising));
+  document.getElementById('sunset-time').textContent = fmtTime(new Date(s.attributes.next_setting));
+}
+
+function fmtTime(d) {
+  let h = d.getHours(), m = d.getMinutes();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2,'0')} ${ap}`;
+}
+
+function updateClock() {
+  const n = new Date();
+  let h = n.getHours(), m = n.getMinutes(), s = n.getSeconds();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  document.getElementById('clock').textContent =
+    `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ap}`;
+}
+
+fetchStates();
+setInterval(fetchStates, 5000);
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+</body>
+</html>
