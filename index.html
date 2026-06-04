@@ -56,6 +56,49 @@
   .sun-label { font-size: 11px; color: #6b7280; }
   .sun-time { font-size: 18px; font-weight: 500; font-family: 'DM Mono', monospace; color: #f0f2f8; margin-top: 2px; }
   .error-banner { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #fca5a5; display: none; }
+
+  /* Apple TV remote */
+  .remote-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 18px; display: grid; grid-template-columns: 1fr; gap: 22px; }
+  @media (min-width: 900px) { .remote-card { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } }
+  .remote-left { display: flex; flex-direction: column; gap: 14px; }
+  .remote-right { display: flex; flex-direction: column; gap: 12px; }
+  .np-strip { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 14px; }
+  .np-art { width: 48px; height: 48px; border-radius: 10px; background: rgba(139,92,246,0.12); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .np-meta { flex: 1; min-width: 0; }
+  .np-app { font-size: 14px; font-weight: 500; color: #f0f2f8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .np-title { font-size: 12px; color: #9ca3af; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .np-sub { font-size: 11px; color: #6b7280; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rstate { font-size: 11px; font-weight: 500; border-radius: 7px; padding: 4px 10px; white-space: nowrap; flex-shrink: 0; }
+  .rstate.playing { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+  .rstate.paused { background: rgba(250,183,60,0.15); color: #fab73c; border: 1px solid rgba(250,183,60,0.2); }
+  .rstate.standby { background: rgba(255,255,255,0.06); color: #9ca3af; border: 1px solid rgba(255,255,255,0.1); }
+  .rbtn { min-height: 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; color: #e8eaf0; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.08s, background 0.1s; user-select: none; }
+  .rbtn:active { transform: scale(0.94); background: rgba(255,255,255,0.1); }
+  .rbtn.primary { background: rgba(250,183,60,0.15); border-color: rgba(250,183,60,0.3); color: #fab73c; font-size: 18px; }
+  .rbtn.active { background: rgba(250,183,60,0.15); border-color: rgba(250,183,60,0.3); color: #fab73c; }
+  .rbtn-row { display: grid; gap: 8px; }
+  .rbtn-row.top3 { grid-template-columns: repeat(3, 1fr); }
+  .rbtn-row.playback { grid-template-columns: repeat(5, 1fr); }
+  .rbtn-row.volume { grid-template-columns: repeat(4, 1fr); }
+  .vol-display { display: flex; align-items: center; justify-content: center; min-height: 48px; font-family: 'DM Mono', monospace; font-size: 16px; color: #f0f2f8; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; }
+  .dpad { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 260px; aspect-ratio: 1; margin: 2px auto; }
+  .dbtn { min-height: 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; color: #e8eaf0; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.08s, background 0.1s; user-select: none; }
+  .dbtn:active { transform: scale(0.92); background: rgba(255,255,255,0.1); }
+  .dbtn.up { grid-column: 2; grid-row: 1; }
+  .dbtn.left { grid-column: 1; grid-row: 2; }
+  .dbtn.ok { grid-column: 2; grid-row: 2; border-radius: 50%; background: rgba(250,183,60,0.12); border-color: rgba(250,183,60,0.25); color: #fab73c; font-weight: 600; font-size: 15px; }
+  .dbtn.right { grid-column: 3; grid-row: 2; }
+  .dbtn.down { grid-column: 2; grid-row: 3; }
+  .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .app-tile { min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; color: #d1d5db; font-family: inherit; cursor: pointer; transition: transform 0.08s, background 0.1s; user-select: none; }
+  .app-tile:active { transform: scale(0.94); background: rgba(255,255,255,0.08); }
+  .app-tile.active { background: rgba(250,183,60,0.12); border-color: rgba(250,183,60,0.3); color: #fab73c; }
+  .app-emoji { font-size: 22px; line-height: 1; }
+  .app-name { font-size: 11px; font-weight: 500; text-align: center; line-height: 1.2; }
+  .source-row { display: flex; align-items: center; gap: 10px; }
+  .source-label { font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #6b7280; }
+  .source-select { flex: 1; min-height: 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; color: #e8eaf0; font-family: inherit; font-size: 14px; padding: 0 12px; cursor: pointer; }
+  .source-select option { background: #1a1d24; color: #e8eaf0; }
 </style>
 </head>
 <body>
@@ -80,6 +123,7 @@
   <div><div class="section-label">Rooms</div><div class="rooms-grid" id="rooms-grid"></div></div>
   <div><div class="section-label">Devices</div><div class="devices-grid" id="devices-grid"></div></div>
   <div><div class="section-label">Media</div><div id="media-section"></div></div>
+  <div><div class="section-label">Apple TV Remote</div><div id="remote-wrap"></div></div>
   <div>
     <div class="section-label">Sun</div>
     <div class="sun-row">
@@ -93,6 +137,14 @@
 const HA = window.location.hostname === '192.168.0.186' ? 'http://192.168.0.186:8123' : 'http://104.229.7.78:8123';
 const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI0MjM5NDJiZDIxY2Y0MmFmODc2NGMyZDQ0YmQzNTQzMCIsImlhdCI6MTc4MDUxMzQ0NCwiZXhwIjoyMDk1ODczNDQ0fQ.4F324qxpAkGENzLnt2Qi_E4r2qmVOfcLO_QJeviiEk0';
 const HEADERS = { Authorization: 'Bearer ' + TOKEN, 'Content-Type': 'application/json' };
+
+const ATV = 'media_player.james_apple_tv';
+const ATV_REMOTE = 'remote.james_apple_tv';
+const APPS = [
+  ['Apple TV+','📺'], ['Netflix','🎬'], ['YouTube','▶️'], ['Disney+','✨'],
+  ['Hulu','🟢'], ['Spotify','🎵'], ['Music','🎶'], ['Max','🎭'],
+  ['Prime Video','🎥'], ['Arcade','🎮'], ['Podcasts','🎙️'], ['Photos','🖼️']
+];
 
 // diagnostic suffixes to exclude
 const DIAGNOSTIC_PATTERNS = [
@@ -197,6 +249,146 @@ function toggle(entityId, domain) {
   }).catch(() => fetchStates());
 }
 
+// --- Apple TV remote ---
+function esc(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function appEmoji(app) {
+  const a = (app || '').toLowerCase();
+  if (/music|spotify/.test(a)) return '🎵';
+  if (/netflix/.test(a)) return '🎬';
+  if (/youtube/.test(a)) return '▶️';
+  if (/disney/.test(a)) return '✨';
+  return '📺';
+}
+
+function appMatches(tileName, currentApp) {
+  if (!currentApp) return false;
+  const c = currentApp.toLowerCase();
+  const t = tileName.toLowerCase();
+  const key = t.replace(/\+/g, '').replace(/video/g, '').trim();
+  return c === t || c.includes(key) || key.includes(c);
+}
+
+function haCall(domain, service, data) {
+  fetch(`${HA}/api/services/${domain}/${service}`, {
+    method: 'POST', headers: HEADERS, body: JSON.stringify(data)
+  }).catch(() => fetchStates());
+}
+function atvRemote(command) { haCall('remote', 'send_command', { entity_id: ATV_REMOTE, command }); }
+function atvMedia(service, extra) { haCall('media_player', service, Object.assign({ entity_id: ATV }, extra || {})); }
+function atvSource(source) { atvMedia('select_source', { source }); }
+
+function atvPlayPause() {
+  const s = allStates[ATV];
+  if (s) s.state = s.state === 'playing' ? 'paused' : 'playing';
+  renderRemote();
+  atvMedia('media_play_pause');
+}
+
+function atvVolume(dir) {
+  const s = allStates[ATV];
+  if (s && typeof s.attributes.volume_level === 'number') {
+    const v = s.attributes.volume_level + (dir === 'up' ? 0.06 : -0.06);
+    s.attributes.volume_level = Math.max(0, Math.min(1, v));
+  }
+  renderRemote();
+  atvMedia(dir === 'up' ? 'volume_up' : 'volume_down');
+}
+
+function atvMute() {
+  const s = allStates[ATV];
+  const muted = s ? !s.attributes.is_volume_muted : true;
+  if (s) s.attributes.is_volume_muted = muted;
+  renderRemote();
+  atvMedia('volume_mute', { is_volume_muted: muted });
+}
+
+function renderRemote() {
+  const s = allStates[ATV];
+  const state = s ? s.state : 'unavailable';
+  const app = s && s.attributes.app_name ? s.attributes.app_name : '';
+  const title = s && s.attributes.media_title ? s.attributes.media_title : '';
+  const sub = s ? (s.attributes.media_artist || s.attributes.media_series_title || '') : '';
+  const muted = !!(s && s.attributes.is_volume_muted);
+  const volPct = s && typeof s.attributes.volume_level === 'number' ? Math.round(s.attributes.volume_level * 100) : 0;
+  const playing = state === 'playing';
+
+  let badge = 'Standby', bclass = 'rstate standby';
+  if (playing) { badge = 'Playing'; bclass = 'rstate playing'; }
+  else if (state === 'paused') { badge = 'Paused'; bclass = 'rstate paused'; }
+  else if (state === 'unavailable' || state === 'unknown') { badge = 'Off'; }
+
+  const sources = s && Array.isArray(s.attributes.source_list) ? s.attributes.source_list : [];
+  const curSource = s && s.attributes.source ? s.attributes.source : '';
+
+  const appGrid = APPS.map(([name, emoji]) => {
+    const active = appMatches(name, app);
+    return `<button class="app-tile ${active ? 'active' : ''}" onclick="atvSource('${name}')">
+        <span class="app-emoji">${emoji}</span><span class="app-name">${name}</span>
+      </button>`;
+  }).join('');
+
+  const sourceDropdown = sources.length ? `
+      <div class="source-row">
+        <span class="source-label">Source</span>
+        <select class="source-select" onchange="atvSource(this.value)">
+          ${sources.map(src => `<option value="${esc(src)}" ${src === curSource ? 'selected' : ''}>${esc(src)}</option>`).join('')}
+        </select>
+      </div>` : '';
+
+  document.getElementById('remote-wrap').innerHTML = `
+    <div class="remote-card">
+      <div class="remote-left">
+        <div class="np-strip">
+          <div class="np-art">${appEmoji(app)}</div>
+          <div class="np-meta">
+            <div class="np-app">${esc(app) || 'Apple TV'}</div>
+            <div class="np-title">${title ? esc(title) : (playing || state === 'paused' ? '' : 'Nothing playing')}</div>
+            ${sub ? `<div class="np-sub">${esc(sub)}</div>` : ''}
+          </div>
+          <span class="${bclass}">${badge}</span>
+        </div>
+
+        <div class="rbtn-row top3">
+          <button class="rbtn" onclick="atvRemote('menu')">Menu</button>
+          <button class="rbtn" onclick="atvRemote('home')">Home</button>
+          <button class="rbtn" onclick="atvRemote('screensaver')">Sleep</button>
+        </div>
+
+        <div class="dpad">
+          <button class="dbtn up" onclick="atvRemote('up')">▲</button>
+          <button class="dbtn left" onclick="atvRemote('left')">◀</button>
+          <button class="dbtn ok" onclick="atvRemote('select')">OK</button>
+          <button class="dbtn right" onclick="atvRemote('right')">▶</button>
+          <button class="dbtn down" onclick="atvRemote('down')">▼</button>
+        </div>
+
+        <div class="rbtn-row playback">
+          <button class="rbtn" onclick="atvMedia('media_previous_track')">⏮</button>
+          <button class="rbtn" onclick="atvRemote('skip_backward')">⏪10</button>
+          <button class="rbtn primary" onclick="atvPlayPause()">${playing ? '⏸' : '▶'}</button>
+          <button class="rbtn" onclick="atvRemote('skip_forward')">10⏩</button>
+          <button class="rbtn" onclick="atvMedia('media_next_track')">⏭</button>
+        </div>
+
+        <div class="rbtn-row volume">
+          <button class="rbtn ${muted ? 'active' : ''}" onclick="atvMute()">${muted ? '🔇' : '🔊'}</button>
+          <button class="rbtn" onclick="atvVolume('down')">－</button>
+          <div class="vol-display">${volPct}%</div>
+          <button class="rbtn" onclick="atvVolume('up')">＋</button>
+        </div>
+        ${sourceDropdown}
+      </div>
+
+      <div class="remote-right">
+        <div class="section-label">Apps</div>
+        <div class="app-grid">${appGrid}</div>
+      </div>
+    </div>`;
+}
+
 function renderAll() {
   const onCount = devices.filter(d => d.state === 'on').length;
   document.getElementById('stat-on').textContent = onCount;
@@ -258,6 +450,8 @@ function renderAll() {
       <span class="${badgeClass}">${badge}</span>
     </div>`;
   }).join('');
+
+  renderRemote();
 }
 
 function updateWeather(s) {
